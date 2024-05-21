@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:college_app/screen/login.dart';
 import 'package:college_app/screen/pages/home.dart';
@@ -14,10 +15,9 @@ const defaultDuration = Duration(seconds: 60);
 class Verifyotp extends StatefulWidget {
   final String email;
   final String screenName;
-  const Verifyotp({
-    required this.email,
-    required this.screenName,
-  });
+  final String pass;
+  const Verifyotp(
+      {required this.email, required this.screenName, required this.pass});
 
   @override
   State<Verifyotp> createState() => _VerifyotpState();
@@ -25,43 +25,56 @@ class Verifyotp extends StatefulWidget {
 
 class _VerifyotpState extends State<Verifyotp> {
   String otp = '';
-  final String apiUrl = 'http://localhost:3000/api/v1/admin/verifyOTP/signup';
-  Future<void> otpVerify(String email, String otp) async {
+  // final String apiUrl = 'http://localhost:3000/api/v1/admin/verifyOTP/signup';
+  Future<void> otpVerify(
+    String email,
+    String otp,
+  ) async {
     try {
-      String encodedOtp = Uri.encodeComponent(otp);
-      String encodedEmail = Uri.encodeComponent(email);
-      String urlWithParams = '$apiUrl?otp=$encodedOtp&email=$encodedEmail';
+      String otpUri = '';
+      String loginUri =
+          'http://localhost:3000/api/v1/admin/login?otp=${otp}&emailOrMobileNumber=${email}';
+
+      String ragisterUri =
+          'http://localhost:3000/api/v1/admin/verifyOTP/signup?email=$email&otp=$otp';
+
+      if (widget.screenName == 'login') {
+        otpUri = loginUri;
+      } else {
+        otpUri = ragisterUri;
+      }
 
       http.Response res = await http.get(
-        Uri.parse(urlWithParams),
+        Uri.parse(otpUri),
         headers: <String, String>{
           'Content-Type': 'application/json',
         },
       );
-
+      final Map<String, dynamic> resBody = jsonDecode(res.body);
       print('Response Status Code: ${res.statusCode}');
 
       if (res.statusCode == 200) {
         print("API call successful");
 
         if (widget.screenName == 'register') {
+          // ignore: use_build_context_synchronously
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => createProfile()),
           );
         } else {
+          // ignore: use_build_context_synchronously
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Home()),
+            MaterialPageRoute(builder: (context) => const Home()),
           );
+          print("error ${resBody['message']}");
         }
       } else {
         print('Error: ${res.statusCode}');
-        // Handle specific status codes or network errors here
       }
     } catch (e) {
       print('Error: $e');
-      // Handle network exceptions or other errors here
     }
   }
 
@@ -105,7 +118,7 @@ class _VerifyotpState extends State<Verifyotp> {
                     width: MediaQuery.of(context).size.width / 1.5,
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(255, 255, 255, 0.619),
+                      color: const Color.fromRGBO(255, 255, 255, 0.619),
                       borderRadius: BorderRadius.circular(10.0),
                       boxShadow: [
                         BoxShadow(
@@ -129,12 +142,12 @@ class _VerifyotpState extends State<Verifyotp> {
                         const SizedBox(height: 10.0),
                         Text(
                           'Otp send successfully on ${widget.email}',
-                          style: TextStyle(color: Colors.black),
+                          style: const TextStyle(color: Colors.black),
                         ),
                         const SizedBox(height: 20.0),
                         OtpTextField(
                           numberOfFields: 5,
-                          borderColor: Color(0xFF512DA8),
+                          borderColor: const Color(0xFF512DA8),
                           //set to true to show as box or false to show1 as dash
                           showFieldAsBox: true,
                           //runs when a code is typed in

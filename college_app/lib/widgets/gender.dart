@@ -1,19 +1,20 @@
+import 'package:college_app/modal/form_model.dart';
 import 'package:flutter/material.dart';
 
 class GenderPicker extends StatefulWidget {
-  const GenderPicker({super.key});
-
+  final void Function(String) onchanged;
+  const GenderPicker({super.key, required this.onchanged});
   @override
   State<GenderPicker> createState() => _GenderPickerState();
 }
 
 class _GenderPickerState extends State<GenderPicker> {
-  String _selectedGender = 'Gender';
+  String _selectedGender = 'prefer not to say';
   final List<String> _genders = [
-    'Gender',
-    'Male',
-    'Female',
-    'Other',
+    "male",
+    "female",
+    "other",
+    "prefer not to say"
   ];
   @override
   Widget build(BuildContext context) {
@@ -23,6 +24,11 @@ class _GenderPickerState extends State<GenderPicker> {
           setState(() {
             _selectedGender = newValue!;
           });
+          widget.onchanged(_selectedGender);
+        },
+        onTap: () {
+          FormData formData = FormData(selectedGender: _selectedGender);
+          String jsonData = formData.toJson().toString();
         },
         items: _genders.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(

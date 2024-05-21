@@ -1,3 +1,4 @@
+import 'package:college_app/responsive/dragister.dart';
 import 'package:college_app/responsive/mragister.dart';
 import 'package:flutter/material.dart';
 
@@ -15,10 +16,6 @@ class _createProfileState extends State<createProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return isDesktop(context)
-        ? Material(
-            child: Center(child: Text("desktop size hai")),
-          )
-        : msizeSingup();
+    return isDesktop(context) ? DsizeSignup() : msizeSingup();
   }
 }

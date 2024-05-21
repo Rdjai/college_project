@@ -31,6 +31,7 @@ class ragisterEmail extends StatelessWidget {
                 builder: (context) => Verifyotp(
                   email: email,
                   screenName: 'register',
+                  pass: '',
                 ),
               ));
           // ignore: use_build_context_synchronously

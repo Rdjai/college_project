@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:college_app/screen/login.dart';
+import 'package:college_app/screen/signup.dart';
 import 'package:flutter/material.dart';
 // import 'package:lottie/lottie.dart';
 
@@ -17,7 +18,7 @@ class _splashState extends State<splash> {
     Timer(
         const Duration(seconds: 3),
         () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Login())));
+            context, MaterialPageRoute(builder: (context) => createProfile())));
   }
 
   @override

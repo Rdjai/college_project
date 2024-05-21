@@ -1,9 +1,15 @@
+import 'dart:io';
 import 'package:college_app/screen/login.dart';
 import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/signup.dart';
 import 'package:college_app/widgets/dob.dart';
+import 'package:college_app/widgets/gender.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:toastification/toastification.dart';
 
 class msizeSingup extends StatefulWidget {
   const msizeSingup({Key? key});
@@ -13,6 +19,66 @@ class msizeSingup extends StatefulWidget {
 }
 
 class _msizeSingupState extends State<msizeSingup> {
+  File? PickImgPath;
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
+
+  Future<void> _imagepicker() async {
+    final ImagePicker _imagepicker = ImagePicker();
+    XFile? image = await _imagepicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      PickImgPath = File(image!.path);
+    });
+    if (image == null) {
+      return;
+    }
+
+    print(PickImgPath);
+  }
+
+  void _uploadImg(File imageFile, BuildContext context) async {
+    if (imageFile == null) {
+      // Handle case where imageFile is null
+      return;
+    }
+
+    String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+    String imagePath = '/foldername/$fileName.jpg'; // Assuming JPG format
+
+    firebase_storage.Reference ref =
+        firebase_storage.FirebaseStorage.instance.ref(imagePath);
+
+    // Set content type explicitly for image files
+    firebase_storage.SettableMetadata metadata =
+        firebase_storage.SettableMetadata(
+      contentType: 'image/jpeg', // Change to 'image/png' if PNG format
+    );
+
+    firebase_storage.UploadTask uploadTask = ref.putFile(
+      imageFile,
+      metadata,
+    );
+
+    try {
+      await uploadTask.whenComplete(() async {
+        String imageUrl = await ref.getDownloadURL();
+        print("Uploaded image URL: $imageUrl");
+
+        // Show success message or perform other actions
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image uploaded successfully!')),
+        );
+      });
+    } catch (error) {
+      print("Error uploading image: $error");
+      // Show error message or handle the error appropriately
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -94,7 +160,7 @@ class _msizeSingupState extends State<msizeSingup> {
                     width: MediaQuery.of(context).size.width / 1.5,
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(255, 255, 255, 0.619),
+                      color: const Color.fromRGBO(255, 255, 255, 0.619),
                       borderRadius: BorderRadius.circular(10.0),
                       boxShadow: [
                         BoxShadow(
@@ -110,7 +176,8 @@ class _msizeSingupState extends State<msizeSingup> {
                         mainAxisSize: MainAxisSize.min, // Use min MainAxisSize
                         children: [
                           const Text(
-                            "create Account Now",
+                            "Create Account Now",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 28.0,
@@ -123,6 +190,57 @@ class _msizeSingupState extends State<msizeSingup> {
                             style: TextStyle(color: Colors.black),
                           ),
                           const SizedBox(height: 20.0),
+                          PickImgPath != null
+                              ? Column(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 60,
+                                      backgroundImage: FileImage(PickImgPath!),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _uploadImg(PickImgPath!, context);
+                                          },
+                                          child: const Text('upload Image'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _imagepicker();
+                                          },
+                                          child: const Text('change Image'),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                )
+                              : Column(
+                                  children: [
+                                    Container(
+                                      width: 120,
+                                      height: 120,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey[300],
+                                      ),
+                                      child: const Icon(Icons.person,
+                                          size: 60, color: Colors.grey),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _imagepicker();
+                                      },
+                                      child: const Text('Select Image'),
+                                    ),
+                                  ],
+                                ),
                           TextField(
                             controller: _firstNameController,
                             decoration: const InputDecoration(
@@ -132,7 +250,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _lastNameController,
                             decoration: const InputDecoration(
                               hintText: "last name",
@@ -141,7 +258,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _fatherNameController,
                             decoration: const InputDecoration(
                               hintText: "father name",
@@ -150,7 +266,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _mobileNoController,
                             decoration: const InputDecoration(
                               hintText: "mobile number",
@@ -159,7 +274,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _emailController,
                             decoration: const InputDecoration(
                               hintText: "xyz@email.com",
@@ -167,12 +281,28 @@ class _msizeSingupState extends State<msizeSingup> {
                             ),
                           ),
                           const SizedBox(height: 10.0),
+                          Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Selected gender",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                GenderPicker(
+                                  onchanged: (p0) {
+                                    debugPrint(p0);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                           DobPicker(
                               onDateSelected: (p0) => {print(p0)},
                               text: "Date of bearth"),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _religionController,
                             decoration: const InputDecoration(
                               hintText: "Enter Religion",
@@ -181,7 +311,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _nationalIdNumberController,
                             decoration: const InputDecoration(
                               hintText: "Adhar number",
@@ -190,7 +319,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _currentAddressHouseNoController,
                             decoration: const InputDecoration(
                               hintText: "House number",
@@ -199,7 +327,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _currentAddressStreetController,
                             decoration: const InputDecoration(
                               hintText: "Street",
@@ -208,7 +335,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _currentAddressCityController,
                             decoration: const InputDecoration(
                               hintText: "city",
@@ -217,7 +343,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _currentAddressStateController,
                             decoration: const InputDecoration(
                               hintText: "State",
@@ -226,7 +351,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _currentAddressPostalCodeController,
                             decoration: const InputDecoration(
                               hintText: "postel code",
@@ -235,7 +359,6 @@ class _msizeSingupState extends State<msizeSingup> {
                           ),
                           const SizedBox(height: 10.0),
                           TextField(
-                            obscureText: true,
                             controller: _currentAddressPostalCodeController,
                             decoration: const InputDecoration(
                               hintText: "Qualification",
@@ -250,7 +373,7 @@ class _msizeSingupState extends State<msizeSingup> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Home(),
+                                    builder: (context) => const Home(),
                                   ),
                                 );
                               },
