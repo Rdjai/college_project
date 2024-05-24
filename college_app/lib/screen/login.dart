@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/ragister.dart';
@@ -5,6 +7,7 @@ import 'package:college_app/screen/varify_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -17,11 +20,11 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   Future loginAccount(String email, String pass, BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
-      print("object");
+      print("Form is not valid");
       return;
     }
     try {
-      print("try block");
+      print("Trying to send OTP");
 
       final res = await http.post(
         Uri.parse('http://localhost:3000/api/v1/admin/generateOTP/login'),
@@ -33,17 +36,38 @@ class _LoginState extends State<Login> {
           'Content-Type': 'application/json',
         },
       );
-      final Map<String, dynamic> errorresponse = jsonDecode(res.body);
+      final Map<String, dynamic> response = jsonDecode(res.body);
+
+      print(res.statusCode);
+      print("object");
+      print(response["token"].toString());
 
       if (res.statusCode == 200) {
-        // ignore: use_build_context_synchronously
+        // Successfully sent OTP, store the token and navigate to Verifyotp screen
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', response["token"].toString());
+        print("object${response["token"].toString()}");
+        // Successfully sent OTP, navigate to Verifyotp screen
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Verifyotp(
+              email: email,
+              screenName: 'login',
+              pass: '',
+            ),
+          ),
+        );
       } else {
+        // Show error message
         showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('something wrong... '),
-              content: Text(errorresponse['message']),
+              title: const Text('Something went wrong...'),
+              content: Text(response['message']),
               actions: [
                 TextButton(
                   child: const Text('OK'),
@@ -55,29 +79,19 @@ class _LoginState extends State<Login> {
             );
           },
         );
-
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Verifyotp(
-                email: email,
-                screenName: 'login',
-                pass: '',
-              ),
-            ));
       }
     } catch (e) {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('something wrong... ?'),
+            title: const Text('Something went wrong...'),
             content: Text(e.toString()),
             actions: [
               TextButton(
                 child: const Text('OK'),
                 onPressed: () {
-                  print("object");
+                  Navigator.pop(context);
                 },
               ),
             ],
@@ -193,7 +207,7 @@ class _LoginState extends State<Login> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const Home(),
+                                    builder: (context) => const mainHomePage(),
                                   ),
                                 );
                               },

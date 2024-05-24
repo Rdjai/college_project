@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -9,6 +11,7 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:slide_countdown/slide_countdown.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const defaultDuration = Duration(seconds: 60);
 
@@ -24,24 +27,26 @@ class Verifyotp extends StatefulWidget {
 }
 
 class _VerifyotpState extends State<Verifyotp> {
+  final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
   String otp = '';
-  // final String apiUrl = 'http://localhost:3000/api/v1/admin/verifyOTP/signup';
-  Future<void> otpVerify(
-    String email,
-    String otp,
-  ) async {
+
+  Future<void> saveToken(String token) async {
+    final SharedPreferences prefs = await _pref;
+    await prefs.setString('token', token);
+  }
+
+  Future<void> otpVerify(String email, String otp) async {
     try {
       String otpUri = '';
       String loginUri =
-          'http://localhost:3000/api/v1/admin/login?otp=${otp}&emailOrMobileNumber=${email}';
-
-      String ragisterUri =
+          'http://localhost:3000/api/v1/admin/login?emailOrMobileNumber=${email}&otp=${otp}';
+      String registerUri =
           'http://localhost:3000/api/v1/admin/verifyOTP/signup?email=$email&otp=$otp';
 
       if (widget.screenName == 'login') {
         otpUri = loginUri;
       } else {
-        otpUri = ragisterUri;
+        otpUri = registerUri;
       }
 
       http.Response res = await http.get(
@@ -56,25 +61,64 @@ class _VerifyotpState extends State<Verifyotp> {
       if (res.statusCode == 200) {
         print("API call successful");
 
+        // Check if the token is an int and convert it to a String if necessary
+        var token = resBody['token'];
+        if (token is int) {
+          token = token.toString();
+        }
+
+        await saveToken(token);
+
         if (widget.screenName == 'register') {
-          // ignore: use_build_context_synchronously
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => createProfile()),
           );
         } else {
-          // ignore: use_build_context_synchronously
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const Home()),
+            MaterialPageRoute(builder: (context) => const mainHomePage()),
           );
-          print("error ${resBody['message']}");
         }
       } else {
-        print('Error: ${res.statusCode}');
+        print('Error: ${resBody['message']}, kkk');
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(resBody['message']),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
       }
     } catch (e) {
       print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Exception'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -129,7 +173,7 @@ class _VerifyotpState extends State<Verifyotp> {
                       ],
                     ),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min, // Use min MainAxisSize
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
                           "Verify email Now",
@@ -148,16 +192,13 @@ class _VerifyotpState extends State<Verifyotp> {
                         OtpTextField(
                           numberOfFields: 5,
                           borderColor: const Color(0xFF512DA8),
-                          //set to true to show as box or false to show1 as dash
                           showFieldAsBox: true,
-                          //runs when a code is typed in
                           onCodeChanged: (String code) {
                             print(code);
                           },
-                          //runs when every textfield is filled
                           onSubmit: (String verificationCode) {
                             otp = verificationCode;
-                          }, // end onSubmit
+                          },
                         ),
                         const SizedBox(height: 10.0),
                         SizedBox(

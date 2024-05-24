@@ -3,18 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:college_app/modal/studentModel.dart';
 
-class khatanahaikarale extends StatefulWidget {
-  const khatanahaikarale({Key? key});
+class StudentListPage extends StatefulWidget {
+  const StudentListPage({Key? key}) : super(key: key);
 
   @override
-  State<khatanahaikarale> createState() => _khatanahaikaraleState();
+  State<StudentListPage> createState() => _StudentListPageState();
 }
 
-class _khatanahaikaraleState extends State<khatanahaikarale> {
-  // ignore: unused_field
+class _StudentListPageState extends State<StudentListPage> {
   late Future<List<StudentModel>> _futureStudents;
 
-  Future<List<StudentModel>> GetstudentData() async {
+  Future<List<StudentModel>> getStudentData() async {
     var res = await http.get(Uri.parse('https://reqres.in/api/users?page=2'));
     if (res.statusCode == 200) {
       var data = jsonDecode(res.body);
@@ -32,13 +31,13 @@ class _khatanahaikaraleState extends State<khatanahaikarale> {
   @override
   void initState() {
     super.initState();
-    _futureStudents = GetstudentData();
+    _futureStudents = getStudentData();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<StudentModel>>(
-      future: GetstudentData(),
+      future: _futureStudents,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -48,18 +47,33 @@ class _khatanahaikaraleState extends State<khatanahaikarale> {
           return Center(
             child: Text('Error: ${snapshot.error}'),
           );
-        } else {
-          return SingleChildScrollView(
-            child: Column(
-              children: snapshot.data!.map((student) {
-                return ListTile(
+        } else if (snapshot.hasData) {
+          final students = snapshot.data!;
+          return ListView.builder(
+            itemCount: students.length,
+            itemBuilder: (context, index) {
+              final student = students[index];
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListTile(
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(student.avatar),
                   ),
-                  title: Text(student.firstName),
-                );
-              }).toList(),
-            ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(student.firstName + student.lastName),
+                      Text(student.email),
+                      Text("Bca")
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        } else {
+          return Center(
+            child: Text('No students found'),
           );
         }
       },

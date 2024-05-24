@@ -1,8 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:college_app/screen/login.dart';
+import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/signup.dart';
+import 'package:college_app/shared_preference_class_get_delete.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:lottie/lottie.dart';
 
 class splash extends StatefulWidget {
@@ -12,24 +17,50 @@ class splash extends StatefulWidget {
 }
 
 class _splashState extends State<splash> {
-  @override
-  void initState() {
-    super.initState();
-    Timer(
-        const Duration(seconds: 3),
-        () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => createProfile())));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Timer(const Duration(milliseconds: 1500), () {
+  Future getToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString("token");
+    if (token != null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const mainHomePage(),
+          ));
+      print('Stored token: $token');
+    } else {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Login(),
           ));
+      print('No token found');
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getToken().then((token) {
+      if (token != null) {
+        Future.delayed(
+          Duration(hours: 24),
+          () => SharedPreferenceHelper.deleteToken(),
+        );
+      }
     });
+    // getToken();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Timer(const Duration(milliseconds: 1500), () {
+    //   Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(
+    //         builder: (context) => Login(),
+    //       ));
+    // });
     return Scaffold(
         // backgroundColor: Colors.black,
         body: Container(

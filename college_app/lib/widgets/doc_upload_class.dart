@@ -94,38 +94,40 @@ class _UploadDocsWidgetState extends State<UploadDocsWidget> {
                 _uploadImg(context);
               }
             },
-            child: DottedBorder(
-              color: Colors.white,
-              borderType: BorderType.RRect,
-              radius: const Radius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                height: MediaQuery.sizeOf(context).height / 3,
-                width: MediaQuery.sizeOf(context).width / 5,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                  color: Colors.blue,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.text,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
+            child: Expanded(
+              child: DottedBorder(
+                color: Colors.white,
+                borderType: BorderType.RRect,
+                radius: const Radius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  height: MediaQuery.sizeOf(context).height / 3.5,
+                  width: MediaQuery.sizeOf(context).width / 5.3,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0),
+                    color: Colors.blue,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        widget.text,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 25,
-                    ),
-                    Icon(
-                      widget.iconName,
-                      color: Colors.white,
-                      size: 55,
-                    )
-                  ],
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 25,
+                      ),
+                      Icon(
+                        widget.iconName,
+                        color: Colors.white,
+                        size: 55,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
