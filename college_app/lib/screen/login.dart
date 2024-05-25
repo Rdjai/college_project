@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/ragister.dart';
+import 'package:college_app/screen/signup.dart';
 import 'package:college_app/screen/varify_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -18,7 +19,44 @@ class _LoginState extends State<Login> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  Future loginAccount(String email, String pass, BuildContext context) async {
+
+  @override
+  void initState() {
+    super.initState();
+    checkTokenExpiry();
+  }
+
+  Future<void> saveToken(String token) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+    await prefs.setInt(
+        'token_timestamp', DateTime.now().millisecondsSinceEpoch);
+  }
+
+  Future<void> checkTokenExpiry() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('token');
+    final int? timestamp = prefs.getInt('token_timestamp');
+
+    if (token != null && timestamp != null) {
+      final DateTime savedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      final DateTime currentTime = DateTime.now();
+
+      if (currentTime.difference(savedTime).inHours >= 24) {
+        // Token is expired
+        await prefs.remove('token');
+        await prefs.remove('token_timestamp');
+        print("Token has expired and has been removed.");
+      } else {
+        print("Token is still valid.");
+      }
+    } else {
+      print("No token found.");
+    }
+  }
+
+  Future<void> loginAccount(
+      String email, String pass, BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
       print("Form is not valid");
       return;
@@ -44,12 +82,10 @@ class _LoginState extends State<Login> {
 
       if (res.statusCode == 200) {
         // Successfully sent OTP, store the token and navigate to Verifyotp screen
-
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', response["token"].toString());
+        await saveToken(response["token"].toString());
         print("object${response["token"].toString()}");
-        // Successfully sent OTP, navigate to Verifyotp screen
 
+        // Successfully sent OTP, navigate to Verifyotp screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -101,6 +137,18 @@ class _LoginState extends State<Login> {
     }
   }
 
+  void loginAsAdmin(BuildContext context) {
+    // Implement your admin login logic here
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Logging in as Admin')));
+  }
+
+  void loginAsStudent(BuildContext context) {
+    // Implement your student login logic here
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Logging in as Student')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -129,7 +177,7 @@ class _LoginState extends State<Login> {
                     width: MediaQuery.of(context).size.width / 1.5,
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(255, 255, 255, 0.619),
+                      color: const Color.fromRGBO(255, 255, 255, 0.619),
                       borderRadius: BorderRadius.circular(10.0),
                       boxShadow: [
                         BoxShadow(
@@ -201,22 +249,57 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                           SizedBox(
-                            width: double.infinity,
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const mainHomePage(),
-                                  ),
-                                );
-                              },
-                              child: const Text(
-                                "Create a new account",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
+                            height: 10,
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                child: TextButton(
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Login As Student",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20.0),
+                              SizedBox(
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ragisterEmail(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    "Create a new account",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20.0),
+                              SizedBox(
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => createProfile(),
+                                        ));
+                                  },
+                                  child: const Text(
+                                    "Login As Professor",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ),

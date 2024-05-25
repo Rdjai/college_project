@@ -41,6 +41,7 @@ class _splashState extends State<splash> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(getToken());
     getToken().then((token) {
       if (token != null) {
         Future.delayed(
@@ -54,13 +55,6 @@ class _splashState extends State<splash> {
 
   @override
   Widget build(BuildContext context) {
-    // Timer(const Duration(milliseconds: 1500), () {
-    //   Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => Login(),
-    //       ));
-    // });
     return Scaffold(
         // backgroundColor: Colors.black,
         body: Container(

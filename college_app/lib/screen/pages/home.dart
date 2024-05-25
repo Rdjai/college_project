@@ -1,11 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:convert';
+
 import 'package:college_app/screen/addnew/proffesor_add.dart';
 import 'package:college_app/screen/home/home.dart';
 import 'package:college_app/screen/addnew/newragister.dart';
 import 'package:college_app/screen/pages/adminprofile.dart';
 import 'package:college_app/screen/pages/studentList.dart';
 import 'package:college_app/screen/splash.dart';
+import 'package:college_app/widgets/department_Data.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class mainHomePage extends StatefulWidget {
   const mainHomePage({super.key});
@@ -15,8 +21,9 @@ class mainHomePage extends StatefulWidget {
 }
 
 TextEditingController _departmentController = TextEditingController();
-TextEditingController _newdepartmentController = TextEditingController();
+
 TextEditingController _createSemisterController = TextEditingController();
+late String selectedDepartment;
 
 class _mainHomePageState extends State<mainHomePage> {
   final Map<String, Widget> _screen = {
@@ -46,6 +53,146 @@ class _mainHomePageState extends State<mainHomePage> {
           MaterialPageRoute(
             builder: (context) => splash(),
           ));
+    }
+  }
+
+  Future<void> departmentCreate(String Department, BuildContext context) async {
+    try {
+      print("Trying to send OTP");
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+      final res = await http.post(
+        Uri.parse('http://localhost:3000/api/v1/admin//department/add'),
+        body: jsonEncode({
+          'departmentName': Department,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      final Map<String, dynamic> response = jsonDecode(res.body);
+
+      print(res.statusCode);
+      print("object");
+      print(response["token"].toString());
+
+      if (res.statusCode == 200) {
+        // Successfully sent OTP, store the token and navigate to Verifyotp screen
+
+        // Successfully sent OTP, navigate to Verifyotp screen
+        Navigator.pop(context);
+      } else {
+        // Show error message
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('College Management System notification'),
+              content: Text(response['message']),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('College Management System notification'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> semistercreate(String semesterName, BuildContext context) async {
+    debugPrint(
+        'Creating semester: $semesterName in department: $selectedDepartment');
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      final res = await http.post(
+        Uri.parse('http://localhost:3000/api/v1/admin/semester/add'),
+        body: jsonEncode({
+          'departmentName': selectedDepartment,
+          'semester': semesterName,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint('Response status: ${res.statusCode}');
+      final Map<String, dynamic> response = jsonDecode(res.body);
+      debugPrint('Response body: $response');
+
+      if (res.statusCode == 200) {
+        // Successfully created semester, handle navigation or display success message
+        Navigator.pop(context); // Close the dialog
+      } else {
+        // Show error message
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('College Management System notification'),
+              content: Text(response['message']),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Handle exceptions
+      debugPrint('Error: $e');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('College Management System notification'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -196,7 +343,7 @@ class _mainHomePageState extends State<mainHomePage> {
                       ListTile(
                         title: const Text('- Add semister'),
                         onTap: () {
-                          _showCreateSemister();
+                          _showCreateSemester();
                           // Handle submenu item 2 tap
                         },
                       ),
@@ -257,6 +404,7 @@ class _mainHomePageState extends State<mainHomePage> {
             ),
             ElevatedButton(
                 onPressed: () {
+                  departmentCreate(_departmentController.text, context);
                   Navigator.pop(context);
                 },
                 child: Text("Create Department"))
@@ -266,25 +414,42 @@ class _mainHomePageState extends State<mainHomePage> {
     );
   }
 
-  void _showCreateSemister() {
+  void _showCreateSemester() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Create semister"),
+          title: Text("Create Semester"),
           actions: [
-            _buildTextField("Department name", "Enter Department Name",
-                _newdepartmentController),
-            _buildTextField(
-                "semister", "Create semister Name", _createSemisterController),
+            Row(
+              children: [
+                Text(
+                  "Select Department",
+                  style: TextStyle(color: Colors.black),
+                ),
+                DepartmentData(
+                  onChanged: (departmentName) {
+                    setState(() {
+                      selectedDepartment = departmentName;
+                    });
+                    debugPrint("Selected Department: $departmentName");
+                  },
+                )
+              ],
+            ),
+            _buildTextField("Semester Name", "Enter Semester Name",
+                _createSemisterController),
             SizedBox(
               height: 12.0,
             ),
             ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Create semister"))
+              onPressed: () async {
+                debugPrint(
+                    "Creating Semester: ${_createSemisterController.text}");
+                await semistercreate(_createSemisterController.text, context);
+              },
+              child: Text("Create Semester"),
+            ),
           ],
         );
       },

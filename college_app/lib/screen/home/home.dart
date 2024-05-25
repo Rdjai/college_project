@@ -66,10 +66,13 @@ class _HomeWidgetState extends State<HomeWidget> {
 
               Row(
                 children: [
-                  Expanded(child: khatanahaikarale()),
+                  const Expanded(child: khatanahaikarale()),
                   Expanded(child: _cerculerchart(context))
                 ],
               ),
+              SizedBox(
+                height: 60,
+              )
               // InputArea()
             ],
           ),
