@@ -2,9 +2,9 @@ import 'package:college_app/widgets/dob.dart';
 import 'package:college_app/widgets/gender.dart';
 import 'package:flutter/material.dart';
 
-class ResponsiveForm extends StatefulWidget {
+class professoradd extends StatefulWidget {
   @override
-  State<ResponsiveForm> createState() => _ResponsiveFormState();
+  State<professoradd> createState() => _professoraddState();
 }
 
 TextEditingController _firstNameController = TextEditingController();
@@ -28,7 +28,7 @@ TextEditingController _medioumtypeController = TextEditingController();
 TextEditingController _totalmarksController = TextEditingController();
 TextEditingController _enrollmentnoController = TextEditingController();
 
-class _ResponsiveFormState extends State<ResponsiveForm> {
+class _professoraddState extends State<professoradd> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -57,6 +57,11 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
         children: [
           SizedBox(
             height: 60.0,
+          ),
+          const Text("Add New Professor",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          SizedBox(
+            height: 16.0,
           ),
           const Text('Personal Information',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -262,6 +267,16 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
               ElevatedButton(
                   onPressed: () {}, child: const Text("upload documents"))
             ],
+          ),
+          SizedBox(
+            height: 16.0,
+          ),
+          ElevatedButton(
+              style: ButtonStyle(alignment: Alignment.center),
+              onPressed: () {},
+              child: Text("Add Professorx")),
+          SizedBox(
+            height: 90,
           )
         ],
       ),
@@ -276,54 +291,63 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
           const Text('Personal Information',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          // _buildTextField('First Name', 'Enter your first name'),
-          // _buildTextField('Last Name', 'Enter your last name'),
-          // _buildTextField('Father\'s Name', 'Enter your father\'s name'),
-          // _buildTextField('Mother\'s Name', 'Enter your mother\'s name'),
-          // _buildTextField('Phone Number', 'Enter your phone number'),
-          // _buildTextField('Email', 'Enter your email'),
-          // // _buildGenderDropdown(),
-          // // _buildDateOfBirthPicker(),
-          // _buildTextField('Religion', 'Enter your religion'),
-          // _buildTextField('Marital Status', 'Enter your marital status'),
-          // _buildTextField('Blood Group', 'Enter your blood group'),
-          // _buildTextField('National ID', 'Enter your national ID'),
-          // _buildTextField(
-          //     'National ID Number', 'Enter your national ID number'),
-          // _buildTextField('Admission Date', 'Enter admission date'),
-          // const SizedBox(height: 24),
-          // const Text('Present Address',
-          //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          // const SizedBox(height: 16),
-          // _buildTextField('State', 'Enter your state'),
-          // _buildTextField('District/City', 'Enter your district/city'),
-          // _buildTextField('Address', 'Enter your address'),
-          // const SizedBox(height: 24),
-          // const Text('Educational Information',
-          //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          // const SizedBox(height: 16),
-          // _buildTextField('School Name', 'Enter your school name'),
-          // _buildTextField('Passing Year', 'Enter your passing year'),
-          // _buildTextField('Total Number', 'Enter your total number'),
-          // const SizedBox(height: 24),
-          // const Text('Academic Information',
-          //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          // const SizedBox(height: 16),
-          // _buildTextField('Program', 'Enter your program'),
-          // _buildTextField('Batch', 'Enter your batch'),
-          // _buildTextField('Session', 'Enter your session'),
-          // _buildTextField('Semester', 'Enter your semester'),
-          // const SizedBox(height: 24),
-          // const Text('Documents',
-          //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          // const SizedBox(height: 16),
-          // _buildTextField('Photo', 'Upload your photo'),
-          // _buildTextField('Signature', 'Upload your signature'),
-          // _buildTextField('Marksheet 10th', 'Upload your 10th marksheet'),
-          // _buildTextField('Marksheet 12th', 'Upload your 12th marksheet'),
-          // _buildTextField(
-          //     'Bachelor Marksheet', 'Upload your bachelor marksheet'),
-          // const SizedBox(height: 24),
+          _buildTextField(
+              'First Name', 'Enter your first name', _firstNameController),
+          _buildTextField(
+              'Last Name', 'Enter your last name', _lastNameController),
+          _buildTextField('Father\'s Name', 'Enter your father\'s name',
+              _fathersNameController),
+          _buildTextField('Mother\'s Name', 'Enter your mother\'s name',
+              _mathersNameController),
+          _buildTextField('Phone Number', 'Enter your phone number',
+              _mobileNumberController),
+          _buildTextField('Email', 'Enter your email', _emailController),
+          _buildGenderDropdown(),
+          DobPicker(
+              onDateSelected: (data) {
+                print(data);
+              },
+              text: 'Date of birth'),
+          _buildTextField(
+              'Religion', 'Enter your religion', _religionController),
+          _buildTextField('Marital Status', 'Enter your marital status',
+              _martialstatusController),
+          _buildTextField(
+              'Blood Group', 'Enter your blood group', _bloodgroupController),
+          _buildTextField('National ID', 'Enter your national ID',
+              _nationalidnumberController),
+          _buildTextField('National ID Number', 'Enter your national ID number',
+              _nationalidnumberController),
+          _buildTextField(
+              'Admission Date', 'Enter admission date', _postalCodeController),
+          const SizedBox(height: 24),
+          const Text('Present Address',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          _buildTextField('State', 'Enter your state', _stateController),
+          _buildTextField(
+              'District/City', 'Enter your district/city', _stateController),
+          _buildTextField(
+              'postel code', 'Enter your postel code', _postalCodeController),
+          const SizedBox(height: 24),
+          const Text('Educational Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          _buildTextField(
+              'School Name', 'Enter your school name', _collegeController),
+          _buildTextField('Passing Year', 'Enter your passing year',
+              _passingyearController),
+          _buildTextField(
+              'Total Number', 'Enter your total number', _totalmarksController),
+          const SizedBox(height: 24),
+          const Text('Academic Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          const Text('Documents',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
               // Handle form submission

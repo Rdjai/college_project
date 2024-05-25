@@ -1,15 +1,15 @@
-import 'package:college_app/screen/addnew/newragister.dart';
+import 'package:college_app/screen/addnew/proffesor_add.dart';
 import 'package:flutter/material.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
-class StudentRegistration extends StatefulWidget {
-  const StudentRegistration({super.key});
+class addProfessor extends StatefulWidget {
+  const addProfessor({super.key});
 
   @override
-  State<StudentRegistration> createState() => _StudentRegistrationState();
+  State<addProfessor> createState() => _addProfessorState();
 }
 
-class _StudentRegistrationState extends State<StudentRegistration> {
+class _addProfessorState extends State<addProfessor> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -44,7 +44,7 @@ class _StudentRegistrationState extends State<StudentRegistration> {
             SizedBox(
               height: 8,
             ),
-            ResponsiveForm()
+            professoradd()
           ],
         ),
       ),

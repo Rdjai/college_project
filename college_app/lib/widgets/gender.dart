@@ -28,6 +28,7 @@ class _GenderPickerState extends State<GenderPicker> {
         },
         onTap: () {
           FormData formData = FormData(selectedGender: _selectedGender);
+          // ignore: unused_local_variable
           String jsonData = formData.toJson().toString();
         },
         items: _genders.map<DropdownMenuItem<String>>((String value) {

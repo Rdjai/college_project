@@ -373,7 +373,7 @@ class _msizeSingupState extends State<msizeSingup> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const Home(),
+                                    builder: (context) => const mainHomePage(),
                                   ),
                                 );
                               },
