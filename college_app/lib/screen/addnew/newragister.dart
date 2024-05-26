@@ -4,6 +4,8 @@ import 'package:college_app/widgets/gender.dart';
 import 'package:flutter/material.dart';
 
 class ResponsiveForm extends StatefulWidget {
+  const ResponsiveForm({super.key});
+
   @override
   State<ResponsiveForm> createState() => _ResponsiveFormState();
 }

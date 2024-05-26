@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class ProfileModelClass {
   String id;
   String adminID;

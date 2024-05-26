@@ -11,7 +11,7 @@ class DepartmentData extends StatefulWidget {
 }
 
 class _DepartmentDataState extends State<DepartmentData> {
-  String? _selectedDepartment;
+  String? _selectedDepartmentId;
   List<dynamic>? _departments;
   bool _isLoading = true;
 
@@ -49,12 +49,17 @@ class _DepartmentDataState extends State<DepartmentData> {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : DropdownButton<String>(
-            value: _selectedDepartment,
+            value: _selectedDepartmentId,
             onChanged: (newValue) {
               setState(() {
-                _selectedDepartment = newValue;
+                _selectedDepartmentId = newValue;
               });
-              widget.onChanged(_selectedDepartment!);
+              // Find the department name based on the selected ID
+              String? departmentName = _departments?.firstWhere(
+                (department) => department['_id'] == newValue,
+                orElse: () => null,
+              )['name'];
+              widget.onChanged(departmentName ?? ''); // Pass department name
             },
             items: _departments?.map<DropdownMenuItem<String>>((department) {
                   return DropdownMenuItem<String>(

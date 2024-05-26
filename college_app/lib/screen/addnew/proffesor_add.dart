@@ -1,6 +1,14 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, use_build_context_synchronously, duplicate_ignore
+
+import 'dart:convert';
+
+import 'package:college_app/widgets/department_Data.dart';
 import 'package:college_app/widgets/dob.dart';
+import 'package:college_app/widgets/doc_upload_class.dart';
 import 'package:college_app/widgets/gender.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class professoradd extends StatefulWidget {
   @override
@@ -15,8 +23,9 @@ TextEditingController _mobileNumberController = TextEditingController();
 TextEditingController _emailController = TextEditingController();
 TextEditingController _religionController = TextEditingController();
 TextEditingController _martialstatusController = TextEditingController();
-TextEditingController _bloodgroupController = TextEditingController();
 TextEditingController _nationalidnumberController = TextEditingController();
+TextEditingController _semesterController = TextEditingController();
+
 TextEditingController _housenumberController = TextEditingController();
 TextEditingController _streetController = TextEditingController();
 TextEditingController _cityController = TextEditingController();
@@ -26,9 +35,153 @@ TextEditingController _collegeController = TextEditingController();
 TextEditingController _passingyearController = TextEditingController();
 TextEditingController _medioumtypeController = TextEditingController();
 TextEditingController _totalmarksController = TextEditingController();
-TextEditingController _enrollmentnoController = TextEditingController();
+TextEditingController _passwordController = TextEditingController();
+TextEditingController _subjectController = TextEditingController();
+TextEditingController _positionController = TextEditingController();
+TextEditingController _saleryController = TextEditingController();
+var teacherDepartment;
+var pic;
+var signatureImg;
+var resume;
+var bankDetails;
+var genderValue;
+var dateofbirth;
+
+String nationalid = "Adhar Card";
+String joiningDate = DateTime.now().toIso8601String();
+String addCategory = "Permanent";
 
 class _professoraddState extends State<professoradd> {
+  Future addProfessor() async {
+    final Map<String, dynamic> teacherData = {
+      "firstName": _firstNameController.text,
+      "lastName": _lastNameController.text,
+      "fatherName": _fathersNameController.text,
+      "mobile_no": _mobileNumberController.text,
+      "email": _emailController.text,
+      "gender": genderValue,
+      "dob": dateofbirth,
+      "religion": _religionController.text,
+      "martial_status": "single",
+      "national_id": "Adhar Card",
+      "national_id_number": _nationalidnumberController.text,
+      "departments": [
+        {"name": teacherDepartment}
+      ],
+      "sem_and_subs": [
+        {
+          "semester": {"name": _semesterController.text},
+          "subject": {"name": _subjectController.text}
+        }
+      ],
+      "joining_date": joiningDate,
+      "current_address": {
+        "category": addCategory,
+        "house_no": _housenumberController.text,
+        "street": _streetController.text,
+        "city": _cityController.text,
+        "state": _stateController.text,
+        "postal_code": _postalCodeController.text
+      },
+      "qualifications": [
+        {
+          "insitute_name": _collegeController.text,
+          "qlfc_name": _medioumtypeController.text,
+          "completion_year": _passingyearController.text
+        }
+      ],
+      "documents": {
+        "pic": pic,
+        "signature_img": signatureImg,
+        "resume_or_cv": resume,
+        "bankDetails": bankDetails
+      },
+      "achievements": [
+        {"name": "Null", "achmtsDesc": "Null", "digitalLink": "Null"}
+      ],
+      "salary": _saleryController.text,
+      "password": _passwordController.text,
+      "position": _positionController.text
+    };
+    print("Teacher Data: $teacherData");
+
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/api/v1/admin/add/professor'),
+        body: jsonEncode(teacherData),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Profile created successfully'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context); // Navigate to the main page
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        print(response.body);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('College Management System notification'),
+              content:
+                  Text(responseBody['message'] ?? 'Error creating profile'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print(e.toString());
+      Navigator.pop(context); // Close the loading dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('College Management System notification'),
+            content: Text('Failed to create profile: $e'),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -44,7 +197,6 @@ class _professoraddState extends State<professoradd> {
   }
 
   Widget _buildDesktopForm() {
-    String _selectedGender = 'Gender';
     final List<String> _genders = [
       'Gender',
       'Male',
@@ -55,12 +207,9 @@ class _professoraddState extends State<professoradd> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 60.0,
-          ),
           const Text("Add New Professor",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(
+          const SizedBox(
             height: 16.0,
           ),
           const Text('Personal Information',
@@ -90,23 +239,23 @@ class _professoraddState extends State<professoradd> {
                 width: 25,
               ),
               Expanded(
-                child: _buildTextField('Mother\'s Name',
-                    'Enter your mother\'s name', _mathersNameController),
+                child: _buildTextField('Phone Number',
+                    'Enter your phone number', _mobileNumberController),
               ),
             ],
           ),
           Row(
             children: [
               Expanded(
-                child: _buildTextField('Phone Number',
-                    'Enter your phone number', _mobileNumberController),
+                child: _buildTextField(
+                    'Email', 'Enter your email', _emailController),
               ),
               const SizedBox(
                 width: 25,
               ),
               Expanded(
-                child: _buildTextField(
-                    'Email', 'Enter your email', _emailController),
+                child: _buildTextField('Adhar number', 'Enter Adhar number',
+                    _nationalidnumberController),
               ),
             ],
           ),
@@ -116,49 +265,61 @@ class _professoraddState extends State<professoradd> {
             children: [
               GenderPicker(
                 onchanged: ((p0) {
-                  debugPrint(p0);
+                  setState(() {
+                    genderValue = p0;
+                  });
                 }),
               ),
               DobPicker(
                   onDateSelected: (data) {
+                    setState(() {
+                      dateofbirth = data.toIso8601String();
+                    });
                     print(data);
                   },
                   text: 'Date of birth'),
+            ],
+          ),
+          const Text('Select Department ',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Expanded(child: DepartmentData(
+                onChanged: (p0) {
+                  print(p0);
+                  setState(() {
+                    teacherDepartment = p0;
+                  });
+                },
+              )),
+              const SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: _buildTextField(
+                    'semester ', 'Enter semester', _semesterController),
+              ),
             ],
           ),
           Row(
             children: [
               Expanded(
                 child: _buildTextField(
-                    'Religion', 'Enter your religion', _religionController),
+                    'Subject ', 'Enter Subject', _subjectController),
               ),
               const SizedBox(
                 width: 25,
               ),
               Expanded(
-                child: _buildTextField('Marital Status',
-                    'Enter your marital status', _martialstatusController),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField('Blood Group', 'Enter your blood group',
-                    _bloodgroupController),
-              ),
-              const SizedBox(
-                width: 25,
-              ),
-              Expanded(
-                child: _buildTextField('Adhar Number',
-                    'Enter your Adhar Number', _nationalidnumberController),
+                child: _buildTextField(
+                    'Position', 'Enter Position', _positionController),
               ),
             ],
           ),
           const SizedBox(
             height: 12,
           ),
+          // "joining_date": "2020-01-01",
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -204,8 +365,8 @@ class _professoraddState extends State<professoradd> {
                     width: 25,
                   ),
                   Expanded(
-                    child: _buildTextField('State Names',
-                        'Enter your State Names', _stateController),
+                    child: _buildTextField(
+                        'religion', 'Enter your religion', _religionController),
                   ),
                 ],
               ),
@@ -214,13 +375,13 @@ class _professoraddState extends State<professoradd> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('enter previous year education details',
+              const Text('Qualifications & education details',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               Row(
                 children: [
                   Expanded(
-                    child: _buildTextField('School or college name',
-                        'Enter School or college name', _collegeController),
+                    child: _buildTextField('insitute name',
+                        'Enter insitute name', _collegeController),
                   ),
                   const SizedBox(
                     width: 25,
@@ -234,30 +395,33 @@ class _professoraddState extends State<professoradd> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildTextField(
-                        'School or college medium type',
-                        'Enter School or college edium type',
-                        _medioumtypeController),
-                  ),
-                  const SizedBox(
-                    width: 25,
-                  ),
-                  Expanded(
-                    child: _buildTextField('total marks',
-                        'Enter your total marks', _totalmarksController),
+                    child: _buildTextField('Degree and higher details',
+                        'Enter your Degree details', _medioumtypeController),
                   ),
                 ],
               ),
             ],
           ),
-          const Text('enrollment number',
+          const Text('Password & salery',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Container(
-            child: _buildTextField('enrollment number',
-                'Enter your enrollment number', _enrollmentnoController),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField(
+                    'Enter Password', 'Enter Password', _passwordController),
+              ),
+              const SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: _buildTextField(
+                    'Enter Salery', 'Enter Salery', _saleryController),
+              ),
+            ],
           ),
-          SizedBox(
-            height: 16.0,
+
+          const SizedBox(
+            height: 15.0,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -265,17 +429,71 @@ class _professoraddState extends State<professoradd> {
               const Text("upload documents",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ElevatedButton(
-                  onPressed: () {}, child: const Text("upload documents"))
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              UploadDocsWidget(
+                                text: "Upload profile Image",
+                                iconName: Icons.photo_library,
+                                onIconSelected: (p0) {
+                                  setState(() {
+                                    pic = p0.toString();
+                                  });
+                                },
+                              ),
+                              UploadDocsWidget(
+                                text: "Upload Signature Image",
+                                iconName: Icons.photo_library,
+                                onIconSelected: (p0) {
+                                  setState(() {
+                                    signatureImg = p0.toString();
+                                  });
+                                },
+                              ),
+                              UploadDocsWidget(
+                                text: "Upload Resume Image",
+                                iconName: Icons.assignment_add,
+                                onIconSelected: (p0) {
+                                  setState(() {
+                                    resume = p0.toString();
+                                  });
+                                },
+                              ),
+                              UploadDocsWidget(
+                                text: "Bank Passbook photos",
+                                iconName: Icons.account_balance,
+                                onIconSelected: (p0) {
+                                  setState(() {
+                                    bankDetails = p0.toString();
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: const Text("upload documents")),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 16.0,
           ),
           ElevatedButton(
-              style: ButtonStyle(alignment: Alignment.center),
-              onPressed: () {},
-              child: Text("Add Professorx")),
-          SizedBox(
+              style: const ButtonStyle(alignment: Alignment.center),
+              onPressed: () {
+                addProfessor();
+              },
+              child: const Text("Add Professor")),
+          const SizedBox(
             height: 90,
           )
         ],
@@ -312,8 +530,6 @@ class _professoraddState extends State<professoradd> {
               'Religion', 'Enter your religion', _religionController),
           _buildTextField('Marital Status', 'Enter your marital status',
               _martialstatusController),
-          _buildTextField(
-              'Blood Group', 'Enter your blood group', _bloodgroupController),
           _buildTextField('National ID', 'Enter your national ID',
               _nationalidnumberController),
           _buildTextField('National ID Number', 'Enter your national ID number',

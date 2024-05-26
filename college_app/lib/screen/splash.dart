@@ -45,7 +45,7 @@ class _splashState extends State<splash> {
     getToken().then((token) {
       if (token != null) {
         Future.delayed(
-          Duration(hours: 24),
+          const Duration(hours: 24),
           () => SharedPreferenceHelper.deleteToken(),
         );
       }
