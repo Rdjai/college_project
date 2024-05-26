@@ -6,6 +6,7 @@ import 'package:college_app/screen/addnew/proffesor_add.dart';
 import 'package:college_app/screen/home/home.dart';
 import 'package:college_app/screen/addnew/newragister.dart';
 import 'package:college_app/screen/pages/adminprofile.dart';
+import 'package:college_app/screen/pages/professor_profile.dart';
 import 'package:college_app/screen/pages/studentList.dart';
 import 'package:college_app/screen/splash.dart';
 import 'package:college_app/widgets/department_Data.dart';
@@ -31,7 +32,8 @@ class _mainHomePageState extends State<mainHomePage> {
     'New_Registration': ResponsiveForm(),
     "add_professor": professoradd(),
     "Student_List": StudentListPage(),
-    "admindetails": DetailsOfAdmin()
+    "admindetails": DetailsOfAdmin(),
+    "teacherProfile": ProfessorProfile()
   };
   String _selectedScreen = "Home";
 
@@ -270,7 +272,9 @@ class _mainHomePageState extends State<mainHomePage> {
                       ListTile(
                         title: const Text('- faculties'),
                         onTap: () {
-                          // Handle submenu item 1 tap
+                          setState(() {
+                            _selectedScreen = "teacherProfile";
+                          });
                         },
                       ),
                       ListTile(
