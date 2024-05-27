@@ -8,6 +8,7 @@ import 'package:college_app/screen/addnew/newragister.dart';
 import 'package:college_app/screen/pages/adminprofile.dart';
 import 'package:college_app/screen/pages/professor_profile.dart';
 import 'package:college_app/screen/pages/studentList.dart';
+import 'package:college_app/screen/pages/studentprofile.dart';
 import 'package:college_app/screen/splash.dart';
 import 'package:college_app/widgets/department_Data.dart';
 import 'package:flutter/material.dart';
@@ -33,15 +34,10 @@ class _mainHomePageState extends State<mainHomePage> {
     "add_professor": professoradd(),
     "Student_List": StudentListPage(),
     "admindetails": DetailsOfAdmin(),
-    "teacherProfile": ProfessorProfile()
+    "teacherProfile": ProfessorProfile(),
+    "studentDetails": const UserDetails()
   };
   String _selectedScreen = "Home";
-
-  void _ontap(String ScreenName) {
-    setState(() {
-      _selectedScreen = ScreenName;
-    });
-  }
 
   Future<void> printToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,7 +49,7 @@ class _mainHomePageState extends State<mainHomePage> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => splash(),
+            builder: (context) => Splash(),
           ));
     }
   }
@@ -290,9 +286,11 @@ class _mainHomePageState extends State<mainHomePage> {
                         },
                       ),
                       ListTile(
-                        title: const Text('- Students'),
+                        title: const Text('- Find Students'),
                         onTap: () {
-                          // Handle submenu item 2 tap
+                          setState(() {
+                            _selectedScreen = "studentDetails";
+                          });
                         },
                       ),
                     ],
@@ -328,12 +326,6 @@ class _mainHomePageState extends State<mainHomePage> {
                     title: const Text('Add'),
                     children: [
                       ListTile(
-                        title: const Text('- Department'),
-                        onTap: () {
-                          _showCreateDepartment();
-                        },
-                      ),
-                      ListTile(
                         title: const Text('- add professor'),
                         onTap: () {
                           // Handle submenu item 2 tap
@@ -342,6 +334,12 @@ class _mainHomePageState extends State<mainHomePage> {
                           setState(() {
                             _selectedScreen = "add_professor";
                           });
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('- Department'),
+                        onTap: () {
+                          _showCreateDepartment();
                         },
                       ),
                       ListTile(

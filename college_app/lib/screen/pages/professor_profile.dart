@@ -45,8 +45,9 @@ class _ProfessorProfileState extends State<ProfessorProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<List<Professor>>(
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: FutureBuilder<List<Professor>>(
         future: futureProfessors,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -60,8 +61,8 @@ class _ProfessorProfileState extends State<ProfessorProfile> {
           } else {
             return GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 3 / 4,
+                crossAxisCount: 3,
+                childAspectRatio: 2,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
               ),
@@ -320,31 +321,45 @@ class ProfessorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.network(
-              professor.documents.pic,
-              fit: BoxFit.cover,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      elevation: 5.0,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 45,
+                backgroundImage: NetworkImage(professor.documents.pic),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  '${professor.firstName} ${professor.lastName}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text('Position: ${professor.position}'),
-                const SizedBox(height: 4),
-                Text('Email: ${professor.email}'),
-              ],
+            const SizedBox(height: 8),
+            Text(
+              '${professor.firstName} ${professor.lastName}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              'Position: ${professor.position}',
+              style: const TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Email: ${professor.email}',
+              style: const TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

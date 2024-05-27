@@ -1,7 +1,15 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names
+
+import 'dart:convert';
+
+import 'package:college_app/screen/addnew/proffesor_add.dart';
+import 'package:college_app/widgets/department_Data.dart';
 import 'package:college_app/widgets/dob.dart';
 import 'package:college_app/widgets/doc_upload_class.dart';
 import 'package:college_app/widgets/gender.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResponsiveForm extends StatefulWidget {
   const ResponsiveForm({super.key});
@@ -36,13 +44,165 @@ TextEditingController _semisterResultController = TextEditingController();
 TextEditingController _semisterResultLinkController = TextEditingController();
 TextEditingController _semisterFeeController = TextEditingController();
 TextEditingController _passwordController = TextEditingController();
+TextEditingController _currentPaidFeesController = TextEditingController();
+
 var pic;
-var signature_img;
+var singImg;
 var marksheet_10th;
 var marksheet_12th;
-var bachelor_marksheet;
+var marksheet_Graduation;
+var selectedCourse;
+String _selectedGender = 'Gender';
+String dob = "male";
 
 class _ResponsiveFormState extends State<ResponsiveForm> {
+  Future addStudent() async {
+    final Map<String, dynamic> studentEntry = {
+      "firstName": _firstNameController.text,
+      "lastName": _lastNameController.text,
+      "fatherName": _fathersNameController.text,
+      "motherName": _mathersNameController.text,
+      "mobile_no": _mobileNumberController.text,
+      "email": _emailController.text,
+      "gender": _selectedGender,
+      "dob": dob,
+      "religion": _religionController.text,
+      "martial_status": "single",
+      "blood_group": _bloodgroupController.text,
+      "national_id": "Adhar Card",
+      "national_id_number": _nationalidnumberController.text,
+      "addmission_date": DateTime.now().toIso8601String(),
+      "current_address": {
+        "category": "student",
+        "house_no": _housenumberController.text,
+        "street": _streetController.text,
+        "city": _cityController.text,
+        "state": _stateController.text,
+        "postal_code": _postalCodeController.text
+      },
+      "education": [
+        {
+          "school_or_college": _collegeController.text,
+          "passing_year": _passingyearController.text,
+          "medium": _medioumtypeController.text,
+          "total_marks": _totalmarksController.text
+        }
+      ],
+      "enrollment_no": _enrollmentnoController.text,
+      "documents": {
+        "pic": pic,
+        "signature_img": singImg,
+        "marksheet_10th": marksheet_10th,
+        "marksheet_12th": marksheet_12th,
+        "bachelor_marksheet": marksheet_Graduation
+      },
+      "department": {
+        "name": selectedCourse,
+      },
+      "results": [
+        {"semester": "1", "resultLink": ""}
+      ],
+      "achievements": [
+        {"name": "null", "achieveDesc": "null", "digitalLink": "null"}
+      ],
+      "fees": [
+        {
+          "semester": {"name": "1"},
+          "fee": {
+            "total_fee": _semisterFeeController.text,
+            "due_fee": 0,
+            "submitted_fee": _currentPaidFeesController.text
+          }
+        }
+      ],
+      "semester": {
+        "semester": "1",
+        "events": [
+          {
+            "evnt_name": "Null",
+          }
+        ]
+      },
+      "password": _passwordController.text
+    };
+    print("Teacher Data: $studentEntry");
+
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/api/v1/admin/add/student'),
+        body: jsonEncode(studentEntry),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Profile created successfully'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        print(response.body);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('College Management System notification'),
+              content:
+                  Text(responseBody['message'] ?? 'Error creating profile'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print(e.toString());
+      Navigator.pop(context); // Close the loading dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('College Management System notification'),
+            content: Text('Failed to create profile: $e'),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -57,19 +217,15 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
     );
   }
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   Widget _buildDesktopForm() {
-    String _selectedGender = 'Gender';
-    final List<String> _genders = [
-      'Gender',
-      'Male',
-      'Female',
-      'Other',
-    ];
     return Form(
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 60.0,
           ),
           const Text('Personal Information',
@@ -125,12 +281,12 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
             children: [
               GenderPicker(
                 onchanged: ((p0) {
-                  debugPrint(p0);
+                  _selectedGender = p0;
                 }),
               ),
               DobPicker(
                   onDateSelected: (data) {
-                    print(data);
+                    dob = data.toIso8601String();
                   },
                   text: 'Date of birth'),
             ],
@@ -209,13 +365,6 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                     child: _buildTextField('Postal code',
                         'Enter your Postal code', _postalCodeController),
                   ),
-                  const SizedBox(
-                    width: 25,
-                  ),
-                  Expanded(
-                    child: _buildTextField('State Names',
-                        'Enter your State Names', _stateController),
-                  ),
                 ],
               ),
             ],
@@ -265,7 +414,7 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
             child: _buildTextField('enrollment number',
                 'Enter your enrollment number', _enrollmentnoController),
           ),
-          SizedBox(
+          const SizedBox(
             height: 15.0,
           ),
           Row(
@@ -275,22 +424,27 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ElevatedButton(
                   onPressed: () {
+                    var screenWidth = MediaQuery.of(context).size.width;
                     showModalBottomSheet(
+                      constraints:
+                          BoxConstraints.tight(Size.fromWidth(screenWidth)),
+                      backgroundColor: Colors.black.withOpacity(0.3),
                       context: context,
                       builder: (context) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
+                            width: MediaQuery.of(context).size.width,
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 UploadDocsWidget(
                                   text: "Upload profile Image",
                                   iconName: Icons.photo_library,
                                   onIconSelected: (p0) {
                                     setState(() {
-                                      signature_img = p0.toString();
+                                      pic = p0.toString();
                                     });
                                   },
                                 ),
@@ -299,12 +453,12 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                                   iconName: Icons.photo_library,
                                   onIconSelected: (p0) {
                                     setState(() {
-                                      signature_img = p0.toString();
+                                      singImg = p0.toString();
                                     });
                                   },
                                 ),
                                 UploadDocsWidget(
-                                  text: "Upload Resume Image",
+                                  text: "Upload 10th Marksheet Image",
                                   iconName: Icons.assignment_add,
                                   onIconSelected: (p0) {
                                     setState(() {
@@ -313,7 +467,7 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                                   },
                                 ),
                                 UploadDocsWidget(
-                                  text: "Bank Passbook photos",
+                                  text: " Previus 12th marksheet",
                                   iconName: Icons.account_balance,
                                   onIconSelected: (p0) {
                                     setState(() {
@@ -322,14 +476,14 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                                   },
                                 ),
                                 UploadDocsWidget(
-                                  text: "Bank Passbook photos",
+                                  text: "Gratuation",
                                   iconName: Icons.account_balance,
                                   onIconSelected: (p0) {
                                     setState(() {
-                                      bachelor_marksheet = p0.toString();
+                                      marksheet_Graduation = p0.toString();
                                     });
                                   },
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -340,20 +494,10 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                   child: const Text("upload documents")),
             ],
           ),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField('Department name',
-                    'Enter Department name', _departmentController),
-              ),
-              const SizedBox(
-                width: 25,
-              ),
-              Expanded(
-                child: _buildTextField(
-                    'Your Semister', 'Current Semister', _semisterController),
-              ),
-            ],
+          DepartmentData(
+            onChanged: (p0) {
+              selectedCourse = p0;
+            },
           ),
           Row(
             children: [
@@ -380,23 +524,37 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
                 width: 25,
               ),
               Expanded(
-                child: _buildTextField('current semister fee',
-                    'current semister fee', _semisterFeeController),
+                child: _buildTextField(
+                    'course fee', 'enter course fee', _semisterFeeController),
               ),
             ],
           ),
           const Text('Enter Student Login Password',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Container(
-            child: _buildTextField('Student Login Password',
-                'Enter Student Login Password', _passwordController),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField('current Paid fee', 'current Paid fee',
+                    _currentPaidFeesController),
+              ),
+              const SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: _buildTextField('Student Login Password',
+                    'Enter Student Login Password', _passwordController),
+              ),
+            ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 16.0,
           ),
           ElevatedButton(
-              onPressed: () {}, child: Text("create student profile")),
-          SizedBox(
+              onPressed: () {
+                addStudent();
+              },
+              child: const Text("create student profile")),
+          const SizedBox(
             height: 100.0,
           ),
         ],
