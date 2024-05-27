@@ -1,88 +1,97 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
-
 import 'package:college_app/screen/login.dart';
 import 'package:college_app/screen/pages/home.dart';
-import 'package:college_app/screen/signup.dart';
 import 'package:college_app/shared_preference_class_get_delete.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:lottie/lottie.dart';
 
-class splash extends StatefulWidget {
-  const splash({super.key});
+class Splash extends StatefulWidget {
+  const Splash({super.key});
 
-  State<splash> createState() => _splashState();
+  @override
+  State<Splash> createState() => _SplashState();
 }
 
-class _splashState extends State<splash> {
-  Future getToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString("token");
-    if (token != null) {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const mainHomePage(),
-          ));
-      print('Stored token: $token');
-    } else {
-      Navigator.pushReplacement(
+class _SplashState extends State<Splash> {
+  Future<void> checkToken() async {
+    final String? token = await SharedPreferenceHelper.getToken();
+    final int? tokenTimestamp =
+        await SharedPreferenceHelper.getTokenTimestamp();
+    final int currentTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    print("Current timestamp: $currentTimestamp");
+    print("Stored token: $token");
+    print("Stored token timestamp: $tokenTimestamp");
+
+    if (token != null && tokenTimestamp != null) {
+      final int elapsedTime = currentTimestamp - tokenTimestamp;
+      print("Elapsed time: $elapsedTime ms");
+
+      if (elapsedTime > 24 * 60 * 60 * 1000) {
+        // 24 hours in milliseconds
+        print('Token deleted after 24 hours');
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Login(),
-          ));
+          ),
+        );
+      } else {
+        print('Token is still valid.');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const mainHomePage(),
+          ),
+        );
+      }
+    } else {
       print('No token found');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Login(),
+        ),
+      );
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    print(getToken());
-    getToken().then((token) {
-      if (token != null) {
-        Future.delayed(
-          const Duration(hours: 24),
-          () => SharedPreferenceHelper.deleteToken(),
-        );
-      }
-    });
-    // getToken();
+    checkToken();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // backgroundColor: Colors.black,
-        body: Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.blue, Colors.purple],
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue, Colors.purple],
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset("assets/img/logo.png"),
+            const SizedBox(
+              height: 12,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.height / 0.9,
+              child: const LinearProgressIndicator(
+                color: Color.fromRGBO(42, 20, 113, 1),
+                semanticsValue: 'Linear progress indicator',
+              ),
+            ),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset("assets/img/logo.png"),
-          const SizedBox(
-            height: 12,
-          ),
-          Container(
-            width: MediaQuery.sizeOf(context).height / 0.9,
-            child: const LinearProgressIndicator(
-              color: Color.fromRGBO(42, 20, 113, 1),
-              semanticsValue: 'Linear progress indicator',
-            ),
-          )
-        ],
-      ),
-    ));
+    );
   }
 }

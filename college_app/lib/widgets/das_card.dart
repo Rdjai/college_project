@@ -57,12 +57,13 @@ class DashboardBard extends StatelessWidget {
                         fit: BoxFit
                             .contain, // Ensure image fits within its container
                         height: MediaQuery.of(context).size.height /
-                            8, // Adjust as needed
+                            9, // Adjust as needed
                       ),
                     ),
                   ],
                 ),
-              )
+              ),
+              Spacer()
             ],
           ),
         ),
