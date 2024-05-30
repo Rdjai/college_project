@@ -19,25 +19,17 @@ TextEditingController _eventtitlecontrol = TextEditingController();
 TextEditingController _eventdescriptioncontrol = TextEditingController();
 TextEditingController _eventdepartmentcontrol = TextEditingController();
 TextEditingController _eventsemestercontrol = TextEditingController();
-var eventdate;
 
 class _EventPageState extends State<EventPage> {
-  Future<void> callevntApi(BuildContext context) async {
+  late String eventdate;
+  Future<void> _callEventApi(BuildContext context) async {
+    print(eventdate); // Debug the event date
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? token = prefs.getString('token');
 
       if (token == null) {
         throw Exception('No token found');
-      }
-
-      // Validate input fields
-      if (_eventtitlecontrol.text.isEmpty ||
-          _eventdescriptioncontrol.text.length < 50 ||
-          _eventdepartmentcontrol.text.isEmpty ||
-          _eventsemestercontrol.text.isEmpty) {
-        throw Exception(
-            'All fields are required and description must be at least 50 characters long.');
       }
 
       final res = await http.post(
@@ -47,7 +39,7 @@ class _EventPageState extends State<EventPage> {
           "description": _eventdescriptioncontrol.text,
           "department": {"name": _eventdepartmentcontrol.text},
           "semester": {"name": _eventsemestercontrol.text},
-          "event_date": eventdate
+          "event_date": eventdate,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -56,8 +48,9 @@ class _EventPageState extends State<EventPage> {
       );
 
       debugPrint('Response status: ${res.statusCode}');
+      debugPrint('Response body: ${res.body}');
       final Map<String, dynamic> response = jsonDecode(res.body);
-      debugPrint('Response body: $response');
+      debugPrint('Response body (decoded): $response');
 
       if (res.statusCode == 200) {
         // Successfully created event
@@ -226,7 +219,7 @@ class _EventPageState extends State<EventPage> {
                   text: "select date"),
               ElevatedButton(
                   onPressed: () {
-                    callevntApi(context);
+                    _callEventApi(context);
                   },
                   child: Text("Create Event"))
             ],

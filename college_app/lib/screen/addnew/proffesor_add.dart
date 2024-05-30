@@ -418,7 +418,11 @@ class _professoraddState extends State<professoradd> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ElevatedButton(
                   onPressed: () {
+                    var screenWidth = MediaQuery.of(context).size.width;
                     showModalBottomSheet(
+                      constraints:
+                          BoxConstraints.tight(Size.fromWidth(screenWidth)),
+                      backgroundColor: Colors.black.withOpacity(0.3),
                       context: context,
                       builder: (context) {
                         return Padding(

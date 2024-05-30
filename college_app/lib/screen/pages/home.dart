@@ -6,6 +6,7 @@ import 'package:college_app/screen/addnew/newragister.dart';
 import 'package:college_app/screen/pages/adminprofile.dart';
 import 'package:college_app/screen/pages/eventpage.dart';
 import 'package:college_app/screen/pages/professor_profile.dart';
+import 'package:college_app/screen/pages/program.dart';
 import 'package:college_app/screen/pages/studentList.dart';
 import 'package:college_app/screen/splash.dart';
 import 'package:college_app/view/studentfind.dart';
@@ -36,6 +37,7 @@ class _mainHomePageState extends State<mainHomePage> {
     'teacherProfile': ProfessorProfile(),
     'studentDetails': StudentFindScreen(),
     "eventPageHere": const EventPage(),
+    "courseprogramr": const AcadimicsCourse(),
   };
   String _selectedScreen = 'Home';
 
@@ -240,7 +242,11 @@ class _mainHomePageState extends State<mainHomePage> {
                             ),
                             ListTile(
                               title: const Text('- Programs'),
-                              onTap: () {},
+                              onTap: () {
+                                setState(() {
+                                  _selectedScreen = 'courseprogramr';
+                                });
+                              },
                             ),
                             ListTile(
                               title: const Text('- Event'),
@@ -319,18 +325,6 @@ class _mainHomePageState extends State<mainHomePage> {
                               _selectedScreen = 'admindetails';
                             });
                           },
-                        ),
-                        const ListTile(
-                          leading: CircleAvatar(
-                            child: Icon(Icons.phone),
-                          ),
-                          title: const Text('Contact Us'),
-                        ),
-                        const ListTile(
-                          leading: CircleAvatar(
-                            child: Icon(Icons.developer_mode),
-                          ),
-                          title: const Text('Developers'),
                         ),
                       ],
                     ),
