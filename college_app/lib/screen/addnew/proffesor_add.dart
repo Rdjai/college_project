@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, use_build_context_synchronously, duplicate_ignore
+// ignore_for_file: prefer_typing_uninitialized_variables, use_build_context_synchronously, duplicate_ignore, use_key_in_widget_constructors, camel_case_types
 
 import 'dart:convert';
 
@@ -103,7 +103,6 @@ class _professoraddState extends State<professoradd> {
       "password": _passwordController.text,
       "position": _positionController.text
     };
-    print("Teacher Data: $teacherData");
 
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -119,7 +118,6 @@ class _professoraddState extends State<professoradd> {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        print(response.body);
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -139,7 +137,6 @@ class _professoraddState extends State<professoradd> {
           },
         );
       } else {
-        print(response.body);
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -160,7 +157,6 @@ class _professoraddState extends State<professoradd> {
         );
       }
     } catch (e) {
-      print(e.toString());
       Navigator.pop(context); // Close the loading dialog
       showDialog(
         context: context,
@@ -197,12 +193,6 @@ class _professoraddState extends State<professoradd> {
   }
 
   Widget _buildDesktopForm() {
-    final List<String> _genders = [
-      'Gender',
-      'Male',
-      'Female',
-      'Other',
-    ];
     return Form(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +265,6 @@ class _professoraddState extends State<professoradd> {
                     setState(() {
                       dateofbirth = data.toIso8601String();
                     });
-                    print(data);
                   },
                   text: 'Date of birth'),
             ],
@@ -286,7 +275,6 @@ class _professoraddState extends State<professoradd> {
             children: [
               Expanded(child: DepartmentData(
                 onChanged: (p0) {
-                  print(p0);
                   setState(() {
                     teacherDepartment = p0;
                   });
@@ -430,7 +418,11 @@ class _professoraddState extends State<professoradd> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ElevatedButton(
                   onPressed: () {
+                    var screenWidth = MediaQuery.of(context).size.width;
                     showModalBottomSheet(
+                      constraints:
+                          BoxConstraints.tight(Size.fromWidth(screenWidth)),
+                      backgroundColor: Colors.black.withOpacity(0.3),
                       context: context,
                       builder: (context) {
                         return Padding(
@@ -521,11 +513,7 @@ class _professoraddState extends State<professoradd> {
               _mobileNumberController),
           _buildTextField('Email', 'Enter your email', _emailController),
           _buildGenderDropdown(),
-          DobPicker(
-              onDateSelected: (data) {
-                print(data);
-              },
-              text: 'Date of birth'),
+          DobPicker(onDateSelected: (data) {}, text: 'Date of birth'),
           _buildTextField(
               'Religion', 'Enter your religion', _religionController),
           _buildTextField('Marital Status', 'Enter your marital status',

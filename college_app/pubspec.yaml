@@ -24,6 +24,7 @@ dependencies:
   shared_preferences: ^2.2.3
   syncfusion_flutter_charts: ^21.2.4
   restart_app: ^1.2.1
+  google_fonts: ^6.2.1
 
  
 

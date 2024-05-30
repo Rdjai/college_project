@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+// ignore: camel_case_types
 class sfCertensianChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

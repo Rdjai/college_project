@@ -10,12 +10,12 @@ import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Login extends StatefulWidget {
+class StudentLoginPage extends StatefulWidget {
   @override
-  State<Login> createState() => _LoginState();
+  State<StudentLoginPage> createState() => _StudentLoginPageState();
 }
 
-class _LoginState extends State<Login> {
+class _StudentLoginPageState extends State<StudentLoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final _formKey = GlobalKey<FormState>();

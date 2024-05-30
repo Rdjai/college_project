@@ -182,7 +182,6 @@ class _ResponsiveFormState extends State<ResponsiveForm> {
       }
     } catch (e) {
       print(e.toString());
-      Navigator.pop(context); // Close the loading dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
