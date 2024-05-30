@@ -1,7 +1,6 @@
 import 'package:college_app/screen/home/sfCartesianChart.dart';
 import 'package:college_app/widgets/das_card.dart';
 import 'package:college_app/screen/home/student.dart';
-import 'package:college_app/screen/home/teacherlist.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -21,21 +20,10 @@ class _HomeWidgetState extends State<HomeWidget> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 30.0,
               ),
-              Container(
-                alignment: Alignment.topLeft,
-                child: const Text(
-                  "Dashboard",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    // color: Colors.green,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
+
               Row(
                 children: [
                   DashboardBard(
@@ -70,7 +58,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   Expanded(child: _cerculerchart(context))
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 60,
               )
               // InputArea()
@@ -101,7 +89,7 @@ Widget _cerculerchart(BuildContext context) {
             xValueMapper: (_PieData data, _) => data.xData,
             yValueMapper: (_PieData data, _) => data.yData,
             dataLabelMapper: (_PieData data, _) => data.text,
-            dataLabelSettings: DataLabelSettings(isVisible: true)),
+            dataLabelSettings: const DataLabelSettings(isVisible: true)),
       ]));
 }
 

@@ -4,16 +4,16 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UserDetails extends StatefulWidget {
-  const UserDetails({super.key});
+class StudentDashBoard extends StatefulWidget {
+  const StudentDashBoard({super.key});
 
   @override
-  State<UserDetails> createState() => _UserDetailsState();
+  State<StudentDashBoard> createState() => _StudentDashBoardState();
 }
 
 TextEditingController _searchStudetnController = TextEditingController();
 
-class _UserDetailsState extends State<UserDetails> {
+class _StudentDashBoardState extends State<StudentDashBoard> {
   Future getStudentProfile() async {
     print(_searchStudetnController.text);
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -37,37 +37,8 @@ class _UserDetailsState extends State<UserDetails> {
   @override
   Widget build(BuildContext context) {
     print("find student");
-    return Center(
-        child: _buildTextField("Enter Studetn Details", "enter Student details",
-            _searchStudetnController));
-  }
-
-  Widget _buildTextField(
-      String label, String hint, TextEditingController textControl) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _searchStudetnController,
-              decoration: InputDecoration(
-                suffixIcon: Icon(Icons.search),
-                prefixIcon: Icon(Icons.person),
-                labelText: label,
-                hintText: hint,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  getStudentProfile();
-                },
-                child: Text("Fetch Data"))
-          ],
-        ),
-      ),
+    return Material(
+      child: Center(child: studentprofile()),
     );
   }
 

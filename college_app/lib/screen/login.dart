@@ -1,10 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, avoid_print
 
 import 'dart:convert';
 import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/ragister.dart';
-import 'package:college_app/screen/signup.dart';
 import 'package:college_app/screen/varify_otp.dart';
+import 'package:college_app/student/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
@@ -16,8 +16,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -248,7 +248,7 @@ class _LoginState extends State<Login> {
                               child: const Text("Send OTP"),
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Row(
@@ -257,7 +257,14 @@ class _LoginState extends State<Login> {
                             children: [
                               SizedBox(
                                 child: TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const StudentDashBoard(),
+                                        ));
+                                  },
                                   child: const Text(
                                     "Login As Student",
                                     style: TextStyle(color: Colors.black),
@@ -289,7 +296,8 @@ class _LoginState extends State<Login> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => createProfile(),
+                                          builder: (context) =>
+                                              const mainHomePage(),
                                         ));
                                   },
                                   child: const Text(

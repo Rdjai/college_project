@@ -41,7 +41,7 @@ class _khatanahaikaraleState extends State<khatanahaikarale> {
       future: GetstudentData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         } else if (snapshot.hasError) {
@@ -50,15 +50,19 @@ class _khatanahaikaraleState extends State<khatanahaikarale> {
           );
         } else {
           return SingleChildScrollView(
-            child: Column(
-              children: snapshot.data!.map((student) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(student.avatar),
-                  ),
-                  title: Text(student.firstName),
-                );
-              }).toList(),
+            child: Card(
+              margin: const EdgeInsets.all(18.0),
+              color: Colors.white,
+              child: Column(
+                children: snapshot.data!.map((student) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(student.avatar),
+                    ),
+                    title: Text(student.firstName),
+                  );
+                }).toList(),
+              ),
             ),
           );
         }

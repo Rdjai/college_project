@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:college_app/screen/home/student.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:college_app/modal/studentModel.dart';
 
@@ -36,47 +38,71 @@ class _StudentListPageState extends State<StudentListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<StudentModel>>(
-      future: _futureStudents,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else if (snapshot.hasData) {
-          final students = snapshot.data!;
-          return ListView.builder(
-            itemCount: students.length,
-            itemBuilder: (context, index) {
-              final student = students[index];
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(student.avatar),
-                  ),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(student.firstName + student.lastName),
-                      Text(student.email),
-                      Text("Bca")
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        } else {
-          return Center(
-            child: Text('No students found'),
-          );
-        }
-      },
+    return Column(
+      children: [
+        SizedBox(
+          height: 9,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            PerformanceCard(
+              icon: Icons.group_sharp,
+              subtitle: "Total student",
+              title: "student",
+            ),
+            PerformanceCard(
+              icon: Icons.local_library,
+              subtitle: "Total Course",
+              title: "Course",
+            ),
+            PerformanceCard(
+              icon: Icons.group_add,
+              subtitle: "Add student",
+              title: "student",
+            ),
+          ],
+        ),
+        khatanahaikarale(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [Text("Left")],
+        )
+      ],
     );
+  }
+}
+
+class PerformanceCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+
+  PerformanceCard(
+      {required this.title, required this.subtitle, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: MediaQuery.of(context).size.width / 4,
+        height: MediaQuery.of(context).size.height / 7,
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
+          leading: Icon(icon, size: 60, color: Colors.blue),
+          title: Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text(
+            subtitle,
+          ),
+        ));
   }
 }
