@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, avoid_print
 
 import 'dart:convert';
+import 'package:college_app/professor/professordashboard.dart';
 import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/ragister.dart';
 import 'package:college_app/screen/varify_otp.dart';
@@ -296,9 +297,8 @@ class _LoginState extends State<Login> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              const mainHomePage(),
-                                        ));
+                                            builder: (context) =>
+                                                ProfessorDashboard()));
                                   },
                                   child: const Text(
                                     "Login As Professor",
