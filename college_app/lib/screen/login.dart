@@ -6,6 +6,7 @@ import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/ragister.dart';
 import 'package:college_app/screen/varify_otp.dart';
 import 'package:college_app/student/dashboard.dart';
+import 'package:college_app/student/loginstudent.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
@@ -263,7 +264,7 @@ class _LoginState extends State<Login> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const StudentDashBoard(),
+                                              StudentLoginPage(),
                                         ));
                                   },
                                   child: const Text(

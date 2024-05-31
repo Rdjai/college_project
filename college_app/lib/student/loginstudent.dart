@@ -3,7 +3,6 @@
 import 'dart:convert';
 import 'package:college_app/screen/pages/home.dart';
 import 'package:college_app/screen/ragister.dart';
-import 'package:college_app/screen/varify_otp.dart';
 import 'package:college_app/student/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -64,12 +63,9 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
     try {
       print("Trying to send OTP");
 
-      final res = await http.post(
-        Uri.parse('http://localhost:3000/api/v1/admin/generateOTP/login'),
-        body: jsonEncode({
-          'emailOrMobileNumber': email,
-          'password': pass,
-        }),
+      final res = await http.get(
+        Uri.parse(
+            'http://localhost:3000/api/v1/student/getprofile?emailOrMobileNumber=${_emailController.text}&password=${_passController.text}'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -87,15 +83,10 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
 
         // Successfully sent OTP, navigate to Verifyotp screen
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Verifyotp(
-              email: email,
-              screenName: 'login',
-              pass: '',
-            ),
-          ),
-        );
+            context,
+            MaterialPageRoute(
+                builder: (context) => StudentDashBoard(
+                    email: _emailController.text, pass: _passController.text)));
       } else {
         // Show error message
         showDialog(
@@ -193,7 +184,7 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
                         mainAxisSize: MainAxisSize.min, // Use min MainAxisSize
                         children: [
                           const Text(
-                            "Login Now",
+                            "Student login Now",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 28.0,
@@ -209,7 +200,7 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
                           TextFormField(
                             controller: _emailController,
                             decoration: const InputDecoration(
-                              hintText: "admin@mpsgroup.org.in",
+                              hintText: "Student@mpsgroup.org.in",
                               prefixIcon: Icon(Icons.email),
                             ),
                             validator: ((value) {
@@ -245,7 +236,7 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
                                   _emailController.text,
                                   _passController.text,
                                   context),
-                              child: const Text("Send OTP"),
+                              child: const Text("Login"),
                             ),
                           ),
                           const SizedBox(
@@ -262,7 +253,7 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const StudentDashBoard(),
+                                              StudentLoginPage(),
                                         ));
                                   },
                                   child: const Text(
