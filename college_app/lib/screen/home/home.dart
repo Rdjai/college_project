@@ -14,56 +14,69 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 35, right: 18, left: 18),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 30.0,
-              ),
+    return Scaffold(
+      body: Material(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 35, right: 18, left: 18),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 30.0,
+                ),
 
-              Row(
-                children: [
-                  DashboardBard(
-                      url: 'assets/img/student.png',
-                      title: 'Pending Applications',
-                      num: '12k'),
-                  DashboardBard(
-                      url: 'assets/img/teacher.png',
-                      title: 'Active Students',
-                      num: '12k'),
-                  DashboardBard(
-                      url: "assets/img/student.png",
-                      title: 'Active Staffs',
-                      num: '35'),
-                  DashboardBard(
-                      url: "assets/img/money.webp",
-                      title: 'Total earn',
-                      num: '90k'),
-                ],
-              ),
-              sfCertensianChart(),
-              const Text("Student List And Chart Acourding Department",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  )),
+                Row(
+                  children: [
+                    DashboardBard(
+                        url: 'assets/img/student.png',
+                        title: 'Pending Applications',
+                        num: '12k'),
+                    DashboardBard(
+                        url: 'assets/img/teacher.png',
+                        title: 'Active Students',
+                        num: '12k'),
+                    DashboardBard(
+                        url: "assets/img/student.png",
+                        title: 'Active Staffs',
+                        num: '35'),
+                    DashboardBard(
+                        url: "assets/img/money.webp",
+                        title: 'Total earn',
+                        num: '90k'),
+                  ],
+                ),
+                sfCertensianChart(),
+                const Text("Student List And Chart Acourding Department",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    )),
 
-              Row(
-                children: [
-                  const Expanded(child: khatanahaikarale()),
-                  Expanded(child: _cerculerchart(context))
-                ],
-              ),
-              const SizedBox(
-                height: 60,
-              )
-              // InputArea()
-            ],
+                Row(
+                  children: [
+                    const Expanded(child: khatanahaikarale()),
+                    Expanded(child: _cerculerchart(context))
+                  ],
+                ),
+                const SizedBox(
+                  height: 60,
+                )
+                // InputArea()
+              ],
+            ),
           ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Handle fees payment action
+          print('Fees payment button pressed');
+        },
+        backgroundColor: Colors.blue,
+        child: Icon(
+          Icons.currency_rupee,
+          color: Colors.white,
         ),
       ),
     );

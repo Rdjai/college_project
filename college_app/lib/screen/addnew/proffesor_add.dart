@@ -128,7 +128,6 @@ class _professoraddState extends State<professoradd> {
                 TextButton(
                   child: const Text('OK'),
                   onPressed: () {
-                    Navigator.pop(context);
                     Navigator.pop(context); // Navigate to the main page
                   },
                 ),
