@@ -19,41 +19,6 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
   final TextEditingController _passController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-    checkTokenExpiry();
-  }
-
-  Future<void> saveToken(String token) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
-    await prefs.setInt(
-        'token_timestamp', DateTime.now().millisecondsSinceEpoch);
-  }
-
-  Future<void> checkTokenExpiry() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token');
-    final int? timestamp = prefs.getInt('token_timestamp');
-
-    if (token != null && timestamp != null) {
-      final DateTime savedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-      final DateTime currentTime = DateTime.now();
-
-      if (currentTime.difference(savedTime).inHours >= 24) {
-        // Token is expired
-        await prefs.remove('token');
-        await prefs.remove('token_timestamp');
-        print("Token has expired and has been removed.");
-      } else {
-        print("Token is still valid.");
-      }
-    } else {
-      print("No token found.");
-    }
-  }
-
   Future<void> loginAccount(
       String email, String pass, BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
@@ -61,32 +26,33 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
       return;
     }
     try {
-      print("Trying to send OTP");
+      print("Trying to log in");
 
       final res = await http.get(
         Uri.parse(
-            'http://localhost:3000/api/v1/student/getprofile?emailOrMobileNumber=${_emailController.text}&password=${_passController.text}'),
+            'http://localhost:3000/api/v1/student/getprofile?emailOrMobileNumber=${email}&password=${pass}'),
         headers: {
           'Content-Type': 'application/json',
         },
       );
+
       final Map<String, dynamic> response = jsonDecode(res.body);
 
       print(res.statusCode);
-      print("object");
       print(response["token"].toString());
 
-      if (res.statusCode == 200) {
-        // Successfully sent OTP, store the token and navigate to Verifyotp screen
-        await saveToken(response["token"].toString());
-        print("object${response["token"].toString()}");
+      if (res.statusCode == 200 && response["success"] == true) {
+        // Successfully logged in, store the token and navigate to the dashboard
 
-        // Successfully sent OTP, navigate to Verifyotp screen
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => StudentDashBoard(
-                    email: _emailController.text, pass: _passController.text)));
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentDashBoard(
+              email,
+              pass,
+            ),
+          ),
+        );
       } else {
         // Show error message
         showDialog(
@@ -108,6 +74,7 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
         );
       }
     } catch (e) {
+      print(e.toString());
       showDialog(
         context: context,
         builder: (context) {
@@ -203,27 +170,27 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
                               hintText: "Student@mpsgroup.org.in",
                               prefixIcon: Icon(Icons.email),
                             ),
-                            validator: ((value) {
+                            validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'email empty';
+                                return 'Email is empty';
                               }
                               return null;
-                            }),
+                            },
                           ),
                           const SizedBox(
                             height: 10.0,
                           ),
                           TextFormField(
                             obscureText: true,
-                            validator: ((value) {
+                            validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'pass empty';
+                                return 'Password is empty';
                               }
                               return null;
-                            }),
+                            },
                             controller: _passController,
                             decoration: const InputDecoration(
-                              hintText: "password",
+                              hintText: "Password",
                               prefixIcon: Icon(Icons.password),
                             ),
                           ),
@@ -246,55 +213,48 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              StudentLoginPage(),
-                                        ));
-                                  },
-                                  child: const Text(
-                                    "Login As Student",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => StudentLoginPage(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  "Login As Student",
+                                  style: TextStyle(color: Colors.black),
                                 ),
                               ),
                               const SizedBox(height: 20.0),
-                              SizedBox(
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ragisterEmail(),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    "Create a new account",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ragisterEmail(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  "Create a new account",
+                                  style: TextStyle(color: Colors.black),
                                 ),
                               ),
                               const SizedBox(height: 20.0),
-                              SizedBox(
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const mainHomePage(),
-                                        ));
-                                  },
-                                  child: const Text(
-                                    "Login As Professor",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => mainHomePage(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  "Login As Professor",
+                                  style: TextStyle(color: Colors.black),
                                 ),
                               ),
                             ],

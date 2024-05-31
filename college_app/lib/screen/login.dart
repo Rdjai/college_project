@@ -281,7 +281,7 @@ class _LoginState extends State<Login> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const ragisterEmail(),
+                                            const mainHomePage(),
                                       ),
                                     );
                                   },

@@ -55,7 +55,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
                 Row(
                   children: [
-                    const Expanded(child: khatanahaikarale()),
+                    Expanded(child: EventsSection()),
                     Expanded(child: _cerculerchart(context))
                   ],
                 ),
@@ -111,4 +111,86 @@ class _PieData {
   final String xData;
   final num yData;
   String? text;
+}
+
+class EventsSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Events',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            EventTile(
+              title: 'Ground Assembly',
+              description:
+                  'Lorem ipsum is simply dummy text of the printing and typesetting industry.',
+              time: 'Today 6pm',
+              isUnread: true,
+            ),
+            Divider(),
+            EventTile(
+              title: 'Seminar Hall Notice',
+              description:
+                  'Lorem ipsum is simply dummy text of the printing and typesetting industry.',
+              time: 'Tomorrow 11am',
+              isUnread: true,
+            ),
+            Divider(),
+            EventTile(
+              title: 'Tect Fest',
+              description:
+                  'Lorem ipsum is simply dummy text of the printing and typesetting industry.',
+              time: 'Yesterday 1pm',
+              isUnread: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EventTile extends StatelessWidget {
+  final String title;
+  final String description;
+  final String time;
+  final bool isUnread;
+
+  EventTile(
+      {required this.title,
+      required this.description,
+      required this.time,
+      required this.isUnread});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(
+        title,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(description),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(time, style: TextStyle(color: Colors.grey)),
+          if (isUnread)
+            Container(
+              margin: EdgeInsets.only(top: 4),
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              color: Colors.red,
+              child: Text(
+                'Unread',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

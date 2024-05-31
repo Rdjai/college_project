@@ -29,7 +29,7 @@ late String selectedDepartment;
 
 class _mainHomePageState extends State<mainHomePage> {
   final Map<String, Widget> _screen = {
-    'Home': const HomeWidget(),
+    'Home': HomeWidget(),
     'New_Registration': const ResponsiveForm(),
     'add_professor': professoradd(),
     'Student_List': const StudentListPage(),

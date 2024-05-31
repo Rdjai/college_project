@@ -36,6 +36,9 @@ class _VerifyotpState extends State<Verifyotp> {
   }
 
   Future<void> otpVerify(String email, String otp) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var token = pref.getString("token");
+    print(token);
     try {
       String otpUri = '';
       String loginUri =

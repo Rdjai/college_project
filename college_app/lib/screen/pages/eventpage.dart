@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:college_app/modal/Professor_profile_modal.dart';
 import 'package:college_app/screen/home/student.dart';
 import 'package:college_app/screen/pages/studentList.dart';
@@ -22,6 +22,51 @@ TextEditingController _eventsemestercontrol = TextEditingController();
 
 class _EventPageState extends State<EventPage> {
   late String eventdate;
+  List events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      final res = await http.get(
+        Uri.parse('http://localhost:3000/api/v1/events/all_events'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint('Fetch events response status: ${res.statusCode}');
+      debugPrint('Fetch events response body: ${res.body}');
+
+      if (res.statusCode == 200) {
+        final Map<String, dynamic> response = jsonDecode(res.body);
+        if (response['success']) {
+          setState(() {
+            events = response['events'];
+          });
+        } else {
+          debugPrint('Fetch events failed: ${response['message']}');
+        }
+      } else {
+        debugPrint('Failed to load events with status code: ${res.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching events: $e');
+    }
+  }
+
   Future<void> _callEventApi(BuildContext context) async {
     print(eventdate); // Debug the event date
     try {
@@ -32,13 +77,17 @@ class _EventPageState extends State<EventPage> {
         throw Exception('No token found');
       }
 
+      // Format the event date
+      final formattedDate =
+          DateFormat('yyyy-MM-dd').format(DateTime.parse(eventdate));
+
       final res = await http.post(
         Uri.parse('http://localhost:3000/api/v1/admin/create/event'),
         body: jsonEncode({
           "title": _eventtitlecontrol.text,
           "description": _eventdescriptioncontrol.text,
-          "department": {"name": _eventdepartmentcontrol.text},
-          "semester": {"name": _eventsemestercontrol.text},
+          "department": _eventdepartmentcontrol.text, // Send as string
+          "semester": _eventsemestercontrol.text, // Send as string
           "event_date": eventdate,
         }),
         headers: {
@@ -57,6 +106,7 @@ class _EventPageState extends State<EventPage> {
         if (mounted) {
           Navigator.pop(context); // Close the dialog
         }
+        _fetchEvents(); // Refresh event list after adding new event
       } else {
         // Show error message
         if (mounted) {
@@ -72,7 +122,7 @@ class _EventPageState extends State<EventPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SingleChildScrollView(
       child: Column(
         children: [
           const SizedBox(
@@ -87,13 +137,16 @@ class _EventPageState extends State<EventPage> {
                   icon: Icons.check),
               PerformanceCard(
                   title: "1",
-                  subtitle: "Event For You this weak",
+                  subtitle: "Event For You this week",
                   icon: Icons.hourglass_bottom),
               GestureDetector(
                 child: PerformanceCard(
                     title: "Add Event",
-                    subtitle: "To plan your weak",
+                    subtitle: "To plan your week",
                     icon: Icons.add),
+                onTap: () {
+                  _showAddEventDialog(context);
+                },
               )
             ],
           ),
@@ -118,79 +171,59 @@ class _EventPageState extends State<EventPage> {
 
   Widget partyDetails() {
     return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Card(
-            margin: const EdgeInsets.all(17),
-            child: Container(
-              height: MediaQuery.of(context).size.height / 6,
-              width: MediaQuery.of(context).size.height / 8,
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Mon",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  Text("01")
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Container(
-              padding: const EdgeInsets.all(25),
-              height: MediaQuery.of(context).size.height / 6,
-              width: MediaQuery.of(context).size.height / 2,
-              child: const Column(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: events.map((event) {
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Meeting introduction",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    event['title'] ?? 'No Title',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Text("Meeting"),
-                  Spacer(),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    event['description'] ?? 'No Description',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 17,
-                          ),
-                          Text(
-                            "Meeting introduction",
-                            style: TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.w600),
-                          ),
-                        ],
+                      Icon(
+                        Icons.schedule,
+                        size: 17,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Icon(
-                            Icons.place,
-                            size: 17,
-                          ),
-                          Text(
-                            "google meet",
-                            style: TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      )
+                      const SizedBox(width: 4.0),
+                      Text(
+                        DateFormat('dd MMM yyyy')
+                            .format(DateTime.parse(event['event_date'])),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Icon(
+                        Icons.place,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 4.0),
+                      Text(
+                        event['department']['name'] ?? 'No Department',
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -211,17 +244,18 @@ class _EventPageState extends State<EventPage> {
               _buildTextField(
                   "semester", "Enter semester", _eventsemestercontrol),
               DobPicker(
-                  onDateSelected: (p0) {
-                    setState(() {
-                      eventdate = p0.toIso8601String();
-                    });
-                  },
-                  text: "select date"),
+                onDateSelected: (selectedDate) {
+                  setState(() {
+                    eventdate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                  });
+                },
+                text: "select date",
+              ),
               ElevatedButton(
                   onPressed: () {
                     _callEventApi(context);
                   },
-                  child: Text("Create Event"))
+                  child: const Text("Create Event")),
             ],
           ),
         ),
@@ -261,6 +295,26 @@ class _EventPageState extends State<EventPage> {
           border: const OutlineInputBorder(),
         ),
       ),
+    );
+  }
+
+  void _showAddEventDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Event'),
+          content: _EventPushPage(),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
